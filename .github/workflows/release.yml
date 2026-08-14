@@ -4,11 +4,6 @@ on:
   push:
     tags:
       - "v*"
-    # One-time backfill trigger for adding macOS assets to v0.1.0.
-    branches:
-      - release/macos-v0.1.0
-    paths:
-      - ".github/workflows/release.yml"
   workflow_dispatch:
     inputs:
       tag:
