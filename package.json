@@ -27,6 +27,8 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "dist:mac:x64": "electron-builder --mac dmg --x64 --publish never",
+    "dist:mac:arm64": "electron-builder --mac dmg --arm64 --publish never",
     "check:release-version": "node scripts/check-release-version.js"
   },
   "devDependencies": {

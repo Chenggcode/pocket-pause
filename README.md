@@ -2,11 +2,11 @@
 
 Pocket Pause 是一款安静常驻系统托盘的 Electron 桌面宠物。它按用户设定的节奏提醒喝水和起身活动，在锁屏、休眠、长时间离开及免打扰时段自动暂停，尽量减少对工作的打断。
 
-> 当前阶段：核心功能已经闭环，正在准备首个开源 Beta；Windows 安装包与自动发布链路已完成基础验证，首发采用未签名安装包。
+> 当前阶段：核心功能已经闭环并发布首个开源版本；Windows 安装包已完成基础验证，macOS 安装包由 CI 构建但仍待真机验证，所有安装包暂不签名。
 
 ## 下载
 
-首个公开版本计划为 `v0.1.0`。发布后可在 [GitHub Releases](https://github.com/Chenggcode/pocket-pause/releases) 下载 `Pocket-Pause-Setup-0.1.0-x64.exe`。未签名 Beta 可能触发 Windows SmartScreen，安装前请核对版本和发布来源。
+当前版本为 `v0.1.0`，可在 [GitHub Releases](https://github.com/Chenggcode/pocket-pause/releases) 下载 Windows x64、macOS Intel x64 或 macOS Apple Silicon arm64 安装包。未签名安装包可能触发 Windows SmartScreen 或 macOS Gatekeeper，安装前请核对版本和发布来源。
 
 ## 当前进度
 
@@ -18,7 +18,7 @@ Pocket Pause 是一款安静常驻系统托盘的 Electron 桌面宠物。它按
 | 系统托盘 | 已实现 | 3 套图标，支持显示/隐藏宠物、暂停提醒、打开设置、退出 |
 | 状态感知 | 已实现 | 锁屏、休眠或离开 5 分钟后暂停计时 |
 | 自动化测试 | 部分完成 | 已覆盖调度器、存储和设置校验，缺少主进程与 UI 测试 |
-| 安装包与发布 | 基础完成 | Windows x64 NSIS 已构建验证，`v*` 标签可自动发布；首发未签名，尚无自动更新 |
+| 安装包与发布 | 基础完成 | 自动构建 Windows x64 NSIS 与 macOS x64/arm64 DMG；macOS 待真机验证，尚无签名和自动更新 |
 
 详细的产品规则、技术架构和路线图见[项目设计文档](docs/PROJECT_DESIGN.md)。
 
@@ -84,6 +84,8 @@ pnpm dist:win
 | `pnpm pack` | 生成未安装的应用目录 |
 | `pnpm dist` | 构建当前平台的安装包 |
 | `pnpm dist:win` | 构建 Windows x64 NSIS 安装包 |
+| `pnpm dist:mac:x64` | 在 macOS 上构建 Intel x64 DMG |
+| `pnpm dist:mac:arm64` | 在 macOS 上构建 Apple Silicon arm64 DMG |
 
 ## 项目结构
 
@@ -109,7 +111,7 @@ docs/
   PROJECT_DESIGN.md   产品与技术设计文档
   RELEASING.md        版本与 GitHub Release 流程
 .github/
-  workflows/          CI 与 Windows Release 自动化
+  workflows/          CI 与跨平台 Release 自动化
 ```
 
 主进程是提醒状态的唯一可信来源。渲染进程不能直接访问 Node.js，只能通过 preload 暴露的白名单接口读取设置、保存设置或提交提醒动作。
@@ -146,17 +148,18 @@ pnpm pack
 pnpm dist
 ```
 
-构建产物输出到 `release/`。Windows 安装包应在 Windows 上构建，macOS DMG 应在 macOS 上构建。当前 Windows x64 NSIS 安装包已完成本地构建验证。正式发布前还需要补充：
+构建产物输出到 `release/`。Windows 安装包应在 Windows 上构建，macOS DMG 应在 macOS 上构建。当前 Windows x64 NSIS 已完成本地构建验证，macOS x64/arm64 DMG 由 GitHub Actions 构建。正式发布前还需要补充：
 
 - 代码签名、macOS 公证和安装/卸载验证。
 - 干净环境、开机启动和多显示器场景验证。
 - 版本发布说明与升级策略。
 
-推送与 `package.json` 版本一致的 `v*` 标签会触发 Windows Release 工作流。完整步骤见[发布流程](docs/RELEASING.md)。
+推送与 `package.json` 版本一致的 `v*` 标签会触发跨平台 Release 工作流。完整步骤见[发布流程](docs/RELEASING.md)。
 
 ## 已知限制
 
 - 开机启动已支持静默驻留托盘，但仍需要在 Windows 和 macOS 真机验证。
+- macOS DMG 未签名且未公证，Gatekeeper 会阻止直接打开，需要用户手动允许。
 - 当前没有代码签名、自动更新或端到端测试。
 
 ## 贡献与安全
