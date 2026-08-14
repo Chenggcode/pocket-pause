@@ -127,7 +127,7 @@ jobs:
     needs:
       - build-windows
       - build-macos
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
@@ -137,17 +137,30 @@ jobs:
           merge-multiple: true
 
       - name: Create or update GitHub Release
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mapfile -t assets < <(find release -maxdepth 1 -type f -print)
-          if [ "${#assets[@]}" -eq 0 ]; then
-            echo "No release assets were produced." >&2
-            exit 1
-          fi
+          $assets = @(Get-ChildItem -Path release -File | Sort-Object Name)
+          if ($assets.Count -eq 0) {
+            throw 'No release assets were produced.'
+          }
 
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
-          else
-            gh release create "$RELEASE_TAG" "${assets[@]}" --generate-notes --title "Pocket Pause $RELEASE_TAG"
-          fi
+          $assets | ForEach-Object {
+            Write-Output "Release asset: $($_.Name) ($($_.Length) bytes)"
+          }
+
+          gh release view $env:RELEASE_TAG *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:RELEASE_TAG --generate-notes --title "Pocket Pause $env:RELEASE_TAG"
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          }
+
+          foreach ($asset in $assets) {
+            gh release upload $env:RELEASE_TAG $asset.FullName --clobber
+            if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+            }
+          }
