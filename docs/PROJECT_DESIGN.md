@@ -96,7 +96,7 @@ flowchart LR
 | 内置外观主题 | 已完成 | 3 个宠物形象与 3 套界面/托盘图标 |
 | 安全隔离 | 已完成基础加固 | 继续补充更完整的 IPC 集成测试 |
 | 自动化测试 | 部分完成 | 覆盖存储、主进程、IPC 和关键 UI 流程 |
-| 发布工程 | 基础完成 | 签名、公证、安装验证和升级策略 |
+| 发布工程 | 基础完成 | Windows 与 macOS 自动构建；仍需签名、公证、真机安装验证和升级策略 |
 
 结论：当前是“可运行的 MVP”，下一里程碑应是内部 Beta，而不是继续扩展新功能。
 
@@ -401,7 +401,7 @@ stateDiagram-v2
 - Windows：x64 NSIS 安装包，首个公开版本为 `v0.1.0`。
 - macOS：DMG，应用类别为健康与健身。
 - 构建输出目录：`release/`。
-- 推送与 `package.json` 一致的 `v*` 标签后，由 GitHub Actions 构建并上传 Windows 安装包。
+- 推送与 `package.json` 一致的 `v*` 标签后，由 GitHub Actions 构建并上传 Windows x64、macOS x64 和 macOS arm64 安装包。
 
 ### 15.2 发布门槛
 

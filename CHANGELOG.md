@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Actions 自动构建 macOS Intel x64 和 Apple Silicon arm64 DMG，并上传到对应 Release。
+
 ## [0.1.0] - 2026-08-14
 
 ### Added

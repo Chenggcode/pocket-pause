@@ -1,6 +1,6 @@
 # 发布流程
 
-Pocket Pause 使用语义化版本和 GitHub Releases。首发目标是 Windows x64 NSIS 安装包。
+Pocket Pause 使用语义化版本和 GitHub Releases。发布目标包括 Windows x64 NSIS，以及 macOS Intel x64 和 Apple Silicon arm64 DMG。
 
 ## 发布前
 
@@ -23,7 +23,7 @@ pnpm dist:win
 
 镜像仅用于本地下载构建依赖，不应写入 GitHub Actions；发布工作流应使用 runner 的默认官方源。
 
-3. 在干净的 Windows 环境安装 `release/` 中的安装包，验证启动、托盘、提醒、免打扰、开机启动和卸载。
+3. 在干净的 Windows 和 macOS 环境安装对应安装包，验证启动、托盘、提醒、免打扰、开机启动和卸载。
 4. 确认仓库中没有证书、令牌、用户设置或其他敏感文件。
 
 ## 创建发布
@@ -36,11 +36,11 @@ git push origin main
 git push origin v0.1.0
 ```
 
-标签会触发 `.github/workflows/release.yml`。工作流先执行测试和版本检查，再构建 Windows x64 NSIS 安装包并创建 GitHub Release。
+标签会触发 `.github/workflows/release.yml`。工作流先执行测试和版本检查，再并行构建 Windows x64 NSIS、macOS x64 DMG 和 macOS arm64 DMG，最后统一创建或更新 GitHub Release。
 
 ## 签名
 
-当前工作流允许构建未签名 Beta。正式稳定版发布前，应将 Windows 签名凭据配置为 GitHub Secrets，禁止把证书和密码提交到仓库。macOS 发布必须在 macOS runner 上完成签名和公证。
+当前工作流明确构建未签名版本。Windows 可能显示 SmartScreen 提示；macOS 未签名且未公证，Gatekeeper 会阻止直接打开。未来启用签名时，证书和密码只能通过 GitHub Secrets 注入，禁止提交到仓库。
 
 ## 发布后
 

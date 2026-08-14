@@ -1,19 +1,39 @@
-name: Release Windows
+name: Release Desktop
 
 on:
   push:
     tags:
       - "v*"
+    # One-time backfill trigger for adding macOS assets to v0.1.0.
+    branches:
+      - release/macos-v0.1.0
+    paths:
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to rebuild
+        required: true
+        default: v0.1.0
+
+env:
+  RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || inputs.tag || 'v0.1.0' }}
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}-${{ inputs.tag }}
+  cancel-in-progress: false
+
 jobs:
-  release-windows:
+  build-windows:
     runs-on: windows-latest
     steps:
-      - name: Checkout
+      - name: Checkout release source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -29,40 +49,96 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify source
-        run: pnpm verify
-
-      - name: Verify release version
-        run: pnpm check:release-version
+      - name: Verify source and release version
+        shell: pwsh
+        run: |
+          pnpm verify
+          node scripts/check-release-version.js "$env:RELEASE_TAG"
 
       - name: Build Windows installer
         run: pnpm dist:win
 
-      - name: Upload workflow artifact
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Pocket-Pause-Windows-${{ github.ref_name }}
-          path: release/Pocket-Pause-Setup-*.exe
+          name: Pocket-Pause-Windows-${{ env.RELEASE_TAG }}
+          path: |
+            release/Pocket-Pause-Setup-*.exe
+            release/Pocket-Pause-Setup-*.blockmap
           if-no-files-found: error
 
+  build-macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            arch: x64
+          - runner: macos-15
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify source and release version
+        run: |
+          pnpm verify
+          node scripts/check-release-version.js "$RELEASE_TAG"
+
+      - name: Build unsigned macOS DMG
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: pnpm exec electron-builder --mac dmg --${{ matrix.arch }} --publish never
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pocket-Pause-macOS-${{ matrix.arch }}-${{ env.RELEASE_TAG }}
+          path: release/*.dmg
+          if-no-files-found: error
+
+  publish-release:
+    needs:
+      - build-windows
+      - build-macos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: Pocket-Pause-*
+          path: release
+          merge-multiple: true
+
       - name: Create or update GitHub Release
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $assets = @(Get-ChildItem -Path release -File | Where-Object {
-            $_.Name -like 'Pocket-Pause-Setup-*' -and $_.Extension -in @('.exe', '.blockmap')
-          } | ForEach-Object { $_.FullName })
-          if ($assets.Count -eq 0) {
-            throw 'No release assets were produced.'
-          }
+          mapfile -t assets < <(find release -maxdepth 1 -type f -print)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "No release assets were produced." >&2
+            exit 1
+          fi
 
-          gh release view $env:GITHUB_REF_NAME *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload $env:GITHUB_REF_NAME $assets --clobber
-          } else {
-            gh release create $env:GITHUB_REF_NAME $assets --generate-notes --title "Pocket Pause $env:GITHUB_REF_NAME"
-          }
-          if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
-          }
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            gh release create "$RELEASE_TAG" "${assets[@]}" --generate-notes --title "Pocket Pause $RELEASE_TAG"
+          fi
