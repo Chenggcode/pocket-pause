@@ -1,0 +1,56 @@
+:root { font-family: Inter, "Segoe UI", "PingFang SC", sans-serif; color: #20302b; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; letter-spacing: 0; }
+.pet { --pet-outline: #203a31; --pet-ink: #20302b; --pet-head: #93cdb0; --pet-ear: #78b996; --pet-body: #78b996; --pet-belly: #bce3cd; --pet-cheek: rgba(221,125,113,.35); position: relative; width: 100%; height: 100%; -webkit-app-region: drag; animation: arrive .32s ease-out both; }
+.pet[data-pet-style="honey-bear"] { --pet-outline: #3d3023; --pet-ink: #352a20; --pet-head: #e5ba73; --pet-ear: #c9934f; --pet-body: #d5a35f; --pet-belly: #f0d9ae; --pet-cheek: rgba(190,99,86,.3); }
+.pet[data-pet-style="cloud-bunny"] { --pet-outline: #243a43; --pet-ink: #20343d; --pet-head: #a9d2e2; --pet-ear: #83b8ce; --pet-body: #8fc2d6; --pet-belly: #d8edf4; --pet-cheek: rgba(215,115,137,.32); }
+.pet.hiding { animation: leave .2s ease-in both; }
+.hide-button { position: absolute; right: 16px; top: 76px; z-index: 5; width: 27px; height: 27px; border: 1px solid #dbe1dc; border-radius: 50%; background: rgba(255,255,255,.92); color: #69756f; cursor: pointer; opacity: 0; transition: opacity .15s; -webkit-app-region: no-drag; }
+.pet:hover .hide-button { opacity: 1; }
+.character { position: absolute; right: 51px; bottom: 4px; width: 145px; height: 160px; filter: drop-shadow(0 8px 9px rgba(26,48,39,.16)); }
+.head { position: absolute; z-index: 2; left: 18px; top: 26px; width: 109px; height: 87px; background: var(--pet-head); border: 3px solid var(--pet-outline); border-radius: 48% 48% 44% 44%; }
+.ear { position: absolute; z-index: 1; top: 12px; width: 42px; height: 51px; background: var(--pet-ear); border: 3px solid var(--pet-outline); }
+.ear.left { left: 20px; border-radius: 76% 20% 50% 30%; transform: rotate(-19deg); }
+.ear.right { right: 20px; border-radius: 20% 76% 30% 50%; transform: rotate(19deg); }
+.eye { position: absolute; top: 36px; width: 9px; height: 12px; background: var(--pet-ink); border-radius: 50%; animation: blink 5s infinite; }
+.eye.left { left: 29px; } .eye.right { right: 29px; }
+.mouth { position: absolute; left: 48px; top: 53px; width: 13px; height: 8px; border-bottom: 2px solid var(--pet-ink); border-radius: 50%; }
+.cheek { position: absolute; top: 52px; width: 13px; height: 6px; background: var(--pet-cheek); border-radius: 50%; }
+.cheek.left { left: 13px; } .cheek.right { right: 13px; }
+.body { position: absolute; left: 29px; bottom: 11px; width: 88px; height: 72px; background: var(--pet-body); border: 3px solid var(--pet-outline); border-radius: 42% 42% 35% 35%; }
+.belly { position: absolute; left: 21px; top: 20px; width: 42px; height: 40px; background: var(--pet-belly); border-radius: 50%; }
+.shadow { position: absolute; z-index: -1; left: 21px; bottom: 2px; width: 106px; height: 15px; background: rgba(25,49,40,.2); border-radius: 50%; }
+.pet[data-pet-style="honey-bear"] .ear { top: 22px; width: 35px; height: 35px; border-radius: 50%; }
+.pet[data-pet-style="honey-bear"] .ear.left { left: 20px; transform: rotate(-8deg); }
+.pet[data-pet-style="honey-bear"] .ear.right { right: 20px; transform: rotate(8deg); }
+.pet[data-pet-style="honey-bear"] .head { top: 31px; border-radius: 48% 48% 45% 45%; }
+.pet[data-pet-style="honey-bear"] .mouth { left: 44px; top: 50px; width: 21px; height: 17px; border: 0; background: var(--pet-belly); }
+.pet[data-pet-style="honey-bear"] .mouth::after { content: ""; position: absolute; left: 5px; top: 5px; width: 11px; height: 7px; border-bottom: 2px solid var(--pet-ink); border-radius: 50%; }
+.pet[data-pet-style="cloud-bunny"] .ear { top: 0; width: 34px; height: 72px; border-radius: 72% 72% 42% 42%; }
+.pet[data-pet-style="cloud-bunny"] .ear.left { left: 25px; transform: rotate(-7deg); }
+.pet[data-pet-style="cloud-bunny"] .ear.right { right: 25px; transform: rotate(7deg); }
+.pet[data-pet-style="cloud-bunny"] .head { top: 38px; height: 82px; }
+.pet[data-pet-style="cloud-bunny"] .eye { top: 33px; }
+.pet[data-pet-style="cloud-bunny"] .mouth { top: 51px; }
+.pet[data-pet-style="cloud-bunny"] .cheek { top: 50px; }
+.idle .character { animation: breathe 2.8s ease-in-out infinite; }
+.reminder .character { animation: nudge .7s ease-in-out 2; }
+.bubble { position: absolute; z-index: 4; top: 7px; right: 11px; width: 338px; min-height: 83px; padding: 13px 16px; border: 1px solid #d8dfda; border-radius: 8px; background: rgba(255,255,255,.97); box-shadow: 0 8px 28px rgba(29,48,41,.14); opacity: 0; pointer-events: none; -webkit-app-region: no-drag; }
+.reminder .bubble { opacity: 1; pointer-events: auto; }
+.bubble::after { content: ""; position: absolute; right: 85px; bottom: -8px; width: 14px; height: 14px; background: white; border-right: 1px solid #d8dfda; border-bottom: 1px solid #d8dfda; transform: rotate(45deg); }
+.bubble-title { margin: 0 0 9px; font-size: 13px; font-weight: 800; }
+.reminder-item { display: grid; grid-template-columns: 21px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; margin-top: 6px; }
+.reminder-symbol { width: 21px; height: 21px; display: grid; place-items: center; border-radius: 5px; font-size: 8px; font-weight: 800; }
+.reminder-symbol.water { color: #237796; background: #dceef3; }
+.reminder-symbol.stand { color: #866a24; background: #f0e9cf; font-size: 13px; }
+.pet[data-icon-style="outline"] .reminder-symbol { border: 1px solid currentColor; background: transparent; }
+.pet[data-icon-style="pixel"] .reminder-symbol { border-radius: 1px; background: #263a33; color: white; font-family: Consolas, monospace; }
+.reminder-label { min-width: 0; overflow: hidden; color: #59655f; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.action { height: 28px; padding: 0 9px; border: 1px solid #d9dfdb; border-radius: 5px; background: #f7f8f6; color: #3b4943; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.action.primary { border-color: #284b3e; background: #284b3e; color: white; }
+@keyframes arrive { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes leave { to { opacity: 0; transform: translateY(20px); } }
+@keyframes breathe { 50% { transform: translateY(-5px) scaleY(1.02); } }
+@keyframes nudge { 25% { transform: rotate(-3deg) translateY(-4px); } 75% { transform: rotate(3deg) translateY(-4px); } }
+@keyframes blink { 0%, 45%, 49%, 100% { transform: scaleY(1); } 47% { transform: scaleY(.1); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

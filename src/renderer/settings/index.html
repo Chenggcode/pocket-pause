@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN" data-icon-style="soft">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+  <title>Pocket Pause</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">日常节奏</p><h1>适时停一下。</h1><p>设置喝水和活动提醒，其余时间安静待在系统托盘。</p></div>
+      <div id="status" class="status"><span></span><strong>提醒运行中</strong></div>
+    </section>
+
+    <form id="settings-form">
+      <section class="section appearance-section">
+        <div class="section-heading"><h2>外观</h2></div>
+        <fieldset class="appearance-group">
+          <legend>宠物伙伴</legend>
+          <div id="pet-style-options" class="appearance-options"></div>
+        </fieldset>
+        <fieldset class="appearance-group">
+          <legend>图标样式</legend>
+          <div id="icon-style-options" class="appearance-options"></div>
+        </fieldset>
+      </section>
+
+      <section class="section">
+        <div class="section-heading"><div><h2>提醒计划</h2><p>到时间后，宠物会出现在桌面右下角。</p></div></div>
+        <div class="reminder-grid">
+          <article class="reminder-row">
+            <div class="reminder-icon water">●</div>
+            <div class="reminder-copy"><h3>喝水</h3><p>补充水分，稍微放松视线</p></div>
+            <label class="interval"><input id="water-minutes" type="number" min="1" max="480"><span>分钟</span></label>
+            <label class="switch"><input id="water-enabled" type="checkbox"><span></span></label>
+          </article>
+          <article class="reminder-row">
+            <div class="reminder-icon stand">↑</div>
+            <div class="reminder-copy"><h3>起身活动</h3><p>离开座位，活动肩颈和双腿</p></div>
+            <label class="interval"><input id="stand-minutes" type="number" min="1" max="480"><span>分钟</span></label>
+            <label class="switch"><input id="stand-enabled" type="checkbox"><span></span></label>
+          </article>
+        </div>
+      </section>
+
+      <section class="section quiet-section">
+        <div class="section-heading inline">
+          <div><h2>免打扰</h2><p>这些时间段内不提醒，离开后重新计时。</p></div>
+          <label class="switch"><input id="quiet-enabled" type="checkbox"><span></span></label>
+        </div>
+        <div id="quiet-periods" class="quiet-periods" data-max-periods="8"></div>
+        <div class="quiet-actions">
+          <button id="add-quiet-period" class="add-time" type="button"><span aria-hidden="true">+</span> 添加时段</button>
+        </div>
+        <template id="quiet-period-template">
+          <div class="time-row">
+            <label><span>开始</span><input class="quiet-start" type="time" required></label>
+            <span class="time-arrow" aria-hidden="true">→</span>
+            <label><span>结束</span><input class="quiet-end" type="time" required></label>
+            <button class="remove-time" type="button" title="删除时段" aria-label="删除时段">×</button>
+          </div>
+        </template>
+      </section>
+
+      <section class="section compact-section">
+        <div class="section-heading inline">
+          <div><h2>开机自动启动</h2><p>登录系统后自动在托盘中运行。</p></div>
+          <label class="switch"><input id="launch-at-login" type="checkbox"><span></span></label>
+        </div>
+      </section>
+
+      <footer><p id="save-message" aria-live="polite"></p><button class="save-button" type="submit">保存设置</button></footer>
+    </form>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

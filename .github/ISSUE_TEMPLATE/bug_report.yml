@@ -1,0 +1,53 @@
+name: Bug 报告
+description: 报告可以稳定复现的功能异常
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: 安全问题请按照 SECURITY.md 私密报告，不要创建公开 Issue。
+
+  - type: input
+    id: version
+    attributes:
+      label: Pocket Pause 版本
+      placeholder: 例如 0.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: system
+    attributes:
+      label: 操作系统
+      placeholder: 例如 Windows 11 24H2
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 请提供最小且可重复的操作步骤。
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 其他信息
+      description: 可附截图、显示器排列、缩放比例或日志，但请移除隐私和敏感数据。

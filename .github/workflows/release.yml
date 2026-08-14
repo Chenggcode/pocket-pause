@@ -1,0 +1,68 @@
+name: Release Windows
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify source
+        run: pnpm verify
+
+      - name: Verify release version
+        run: pnpm check:release-version
+
+      - name: Build Windows installer
+        run: pnpm dist:win
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Pocket-Pause-Windows-${{ github.ref_name }}
+          path: release/Pocket-Pause-Setup-*.exe
+          if-no-files-found: error
+
+      - name: Create or update GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = @(Get-ChildItem -Path release -File | Where-Object {
+            $_.Name -like 'Pocket-Pause-Setup-*' -and $_.Extension -in @('.exe', '.blockmap')
+          } | ForEach-Object { $_.FullName })
+          if ($assets.Count -eq 0) {
+            throw 'No release assets were produced.'
+          }
+
+          gh release view $env:GITHUB_REF_NAME *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:GITHUB_REF_NAME $assets --clobber
+          } else {
+            gh release create $env:GITHUB_REF_NAME $assets --generate-notes --title "Pocket Pause $env:GITHUB_REF_NAME"
+          }
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }

@@ -1,0 +1,72 @@
+{
+  "name": "pocket-pause",
+  "version": "0.1.0",
+  "description": "A quiet desktop pet that reminds you to drink water and take movement breaks.",
+  "author": "Chenggcode and Pocket Pause contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/Chenggcode/pocket-pause#readme",
+  "bugs": {
+    "url": "https://github.com/Chenggcode/pocket-pause/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chenggcode/pocket-pause.git"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=11"
+  },
+  "main": "src/main/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main/main.js && node --check src/main/store.js && node --check src/main/scheduler.js && node --check src/main/window-position.js && node --check src/shared/defaults.js && node --check src/shared/validation.js && node --check src/renderer/settings/app.js && node --check src/renderer/pet/app.js",
+    "test": "node --test",
+    "verify": "pnpm check && pnpm test",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis --x64 --publish never",
+    "check:release-version": "node scripts/check-release-version.js"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.pocketpause.desktop",
+    "productName": "Pocket Pause",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "artifactName": "Pocket-Pause-Setup-${version}-${arch}.${ext}",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/app-icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Pocket Pause"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/app-icon.png",
+      "category": "public.app-category.healthcare-fitness"
+    }
+  }
+}
