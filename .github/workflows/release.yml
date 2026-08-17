@@ -58,7 +58,7 @@ jobs:
         run: pnpm dist:win
 
       - name: Upload Windows artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Pocket-Pause-Windows-${{ env.RELEASE_TAG }}
           path: |
@@ -112,7 +112,7 @@ jobs:
         run: pnpm exec electron-builder --mac dmg --${{ matrix.arch }} --publish never
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Pocket-Pause-macOS-${{ matrix.arch }}-${{ env.RELEASE_TAG }}
           path: release/*.dmg
